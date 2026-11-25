@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>회원가입 - Game Community</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/auth.css}">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <h1>Game Community</h1>
+    <h2>회원가입</h2>
+
+    <p class="error"
+       th:if="${error}"
+       th:text="${error}">
+    </p>
+
+    <form th:action="@{/register}" method="post">
+
+        <label for="username">아이디</label>
+        <input type="text"
+               id="username"
+               name="username"
+               placeholder="아이디를 입력하세요"
+               autocomplete="username"
+               minlength="4"
+               maxlength="30"
+               required>
+
+        <label for="password">비밀번호</label>
+        <input type="password"
+               id="password"
+               name="password"
+               placeholder="8자 이상 입력"
+               autocomplete="new-password"
+               minlength="8"
+               maxlength="72"
+               required>
+
+        <label for="nickname">닉네임</label>
+        <input type="text"
+               id="nickname"
+               name="nickname"
+               placeholder="닉네임을 입력하세요"
+               minlength="2"
+               maxlength="30"
+               required>
+
+        <button type="submit">회원가입</button>
+
+    </form>
+
+    <div class="bottom-link">
+        이미 계정이 있으신가요?
+        <a th:href="@{/login}">로그인</a>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>글쓰기 - Game Community</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/home.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/space.css}">
+
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <a class="logo" th:href="@{/}">
+            Game Community
+        </a>
+
+        <span class="subtitle">
+            게임을 이야기하는 공간
+        </span>
+
+    </div>
+
+</header>
+
+<nav class="navbar">
+
+    <div class="nav-inner">
+
+        <a th:href="@{/}">홈</a>
+
+        <a th:href="@{/spaces/{slug}(slug=${space.slug})}"
+           th:text="${space.name}">
+        </a>
+
+    </div>
+
+</nav>
+
+<main class="board-layout">
+
+    <section class="panel">
+
+        <div class="board-header">
+
+            <h1 th:text="|${space.name} - 글쓰기|">
+                글쓰기
+            </h1>
+
+        </div>
+
+        <p class="form-error"
+           th:if="${error != null}"
+           th:text="${error}">
+        </p>
+
+        <form class="post-form"
+              th:action="@{/spaces/{slug}/write(slug=${space.slug})}"
+              method="post">
+
+            <!-- 비회원 입력 영역 -->
+
+            <div class="guest-fields"
+                 th:if="${!loggedIn}">
+
+                <div>
+
+                    <label for="nickname">
+                        닉네임
+                    </label>
+
+                    <input type="text"
+                           id="nickname"
+                           name="nickname"
+                           th:value="${nickname}"
+                           minlength="2"
+                           maxlength="30"
+                           required>
+
+                </div>
+
+                <div>
+
+                    <label for="password">
+                        비밀번호
+                    </label>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           minlength="8"
+                           maxlength="72"
+                           autocomplete="new-password"
+                           required>
+
+                </div>
+
+            </div>
+
+            <!-- 회원 안내 -->
+
+            <p class="member-notice"
+               th:if="${loggedIn}">
+
+                로그인 계정의 닉네임으로
+                게시글이 등록됩니다.
+
+            </p>
+
+            <!-- 제목 -->
+
+            <label for="title">
+                제목
+            </label>
+
+            <input type="text"
+                   id="title"
+                   name="title"
+                   th:value="${title}"
+                   placeholder="게시글 제목을 입력하세요."
+                   maxlength="100"
+                   required>
+
+            <!-- 내용 -->
+
+            <label for="content">
+                내용
+            </label>
+
+            <textarea id="content"
+                      name="content"
+                      th:text="${content}"
+                      placeholder="게시글 내용을 입력하세요."
+                      maxlength="10000"
+                      required></textarea>
+
+            <!-- 등록 및 취소 -->
+
+            <div class="form-actions">
+
+                <a class="cancel-button"
+                   th:href="@{/spaces/{slug}(slug=${space.slug})}">
+                    취소
+                </a>
+
+                <button type="submit"
+                        class="write-button">
+                    게시글 등록
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<footer class="footer">
+
+    <p>Game Community</p>
+    <p>Spring Boot &amp; JPA Term Project</p>
+
+</footer>
+
+</body>
+</html>

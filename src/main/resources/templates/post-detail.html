@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="|${post.title()} - Game Community|">
+        Game Community
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/home.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/space.css}">
+
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <a class="logo" th:href="@{/}">
+            Game Community
+        </a>
+
+        <span class="subtitle">
+            게임을 이야기하는 공간
+        </span>
+
+    </div>
+
+</header>
+
+<nav class="navbar">
+
+    <div class="nav-inner">
+
+        <a th:href="@{/}">홈</a>
+
+        <a th:href="@{/spaces/{slug}(slug=${post.spaceSlug()})}"
+           th:text="${post.spaceName()}">
+        </a>
+
+    </div>
+
+</nav>
+
+<main class="board-layout">
+
+    <section class="panel">
+
+        <div class="board-header">
+
+            <h1 th:text="${post.spaceName()}">
+                게임 공간
+            </h1>
+
+        </div>
+
+        <p class="form-error"
+           th:if="${error != null}"
+           th:text="${error}">
+        </p>
+
+        <p class="member-notice"
+           th:if="${success != null}"
+           th:text="${success}">
+        </p>
+
+        <div class="detail-header">
+
+            <h2 th:text="${post.title()}">
+                게시글 제목
+            </h2>
+
+            <div class="post-meta">
+
+                <span th:text="${post.nickname()}">
+                    작성자
+                </span>
+
+                <span th:text="${#temporals.format(post.createdAt(), 'yyyy-MM-dd HH:mm')}">
+                    작성 시간
+                </span>
+
+                <span th:text="|조회 ${post.viewCount()}|">
+                    조회 0
+                </span>
+
+                <span th:text="|추천 ${post.likeCount()}|">
+                    추천 0
+                </span>
+
+            </div>
+
+        </div>
+
+        <!-- 게시글 본문 -->
+
+        <!-- 게시글 추천 영역 -->
+        <div class="like-section">
+
+            <form th:action="@{/posts/{id}/like(id=${post.id()})}"
+                  method="post">
+
+                <button type="submit"
+                        class="like-button"
+                        th:disabled="${liked}">
+
+            <span class="like-count"
+                  th:text="${post.likeCount()}">
+                0
+            </span>
+
+                    <span th:text="${liked ? '추천 완료' : '추천'}">
+                추천
+            </span>
+
+                </button>
+
+            </form>
+
+            <p class="like-message"
+               th:if="${likeMessage != null}"
+               th:text="${likeMessage}">
+            </p>
+
+        </div>
+
+        <div class="post-content"
+             th:text="${post.content()}">
+            게시글 내용
+        </div>
+
+        <div class="form-actions">
+
+            <div class="form-actions">
+
+                <!-- 목록 이동 -->
+                <a class="cancel-button"
+                   th:href="@{/spaces/{slug}(slug=${post.spaceSlug()})}">
+                    목록으로
+                </a>
+
+                <!-- 수정 버튼 -->
+                <a class="cancel-button"
+                   th:if="${manage.canManage()}"
+                   th:href="@{/posts/{id}/edit(id=${post.id()})}">
+                    수정
+                </a>
+
+            </div>
+
+            <!-- 삭제 영역 -->
+            <form class="post-form"
+                  th:if="${manage.canManage()}"
+                  th:action="@{/posts/{id}/delete(id=${post.id()})}"
+                  method="post"
+                  onsubmit="return confirm('게시글을 삭제하시겠습니까?');">
+
+                <!-- 비회원 비밀번호 확인 -->
+                <div th:if="${manage.guestPost()}">
+
+                    <label for="delete-password">
+                        게시글 비밀번호
+                    </label>
+
+                    <input type="password"
+                           id="delete-password"
+                           name="password"
+                           placeholder="삭제하려면 비밀번호를 입력하세요."
+                           autocomplete="off"
+                           required>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button type="submit"
+                            class="write-button">
+                        삭제
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+    <!-- 댓글 영역 -->
+    <section class="panel comment-section" id="comments">
+
+        <h2 th:text="|전체 댓글 ${commentCount}개|">
+            전체 댓글 0개
+        </h2>
+
+        <!-- 댓글 성공 메시지 -->
+        <p class="member-notice"
+           th:if="${commentSuccess != null}"
+           th:text="${commentSuccess}">
+        </p>
+
+        <!-- 댓글 오류 메시지 -->
+        <p class="form-error"
+           th:if="${commentError != null}"
+           th:text="${commentError}">
+        </p>
+
+        <!-- 댓글이 없을 경우 -->
+        <div class="comment-empty"
+             th:if="${#lists.isEmpty(comments)}">
+
+            등록된 댓글이 없습니다.
+
+        </div>
+
+        <!-- 댓글 목록 -->
+        <div class="comment-item"
+             th:each="comment : ${comments}">
+
+            <div class="comment-header">
+
+                <strong th:text="${comment.nickname()}">
+                    작성자
+                </strong>
+
+                <span class="writer-type"
+                      th:text="${comment.guestComment() ? '비회원' : '회원'}">
+            </span>
+
+                <span class="comment-date"
+                      th:text="${#temporals.format(comment.createdAt(), 'yyyy-MM-dd HH:mm')}">
+            </span>
+
+            </div>
+
+            <!-- 댓글 내용 -->
+            <div class="comment-content"
+                 th:text="${comment.content()}">
+            </div>
+
+            <!-- 댓글 삭제 -->
+            <form class="comment-delete-form"
+                  th:if="${comment.canDelete()}"
+                  th:action="@{/posts/{id}/comments/{commentId}/delete(id=${post.id()},commentId=${comment.id()})}"
+                  method="post"
+                  onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+
+                <input type="password"
+                       name="password"
+                       th:if="${comment.guestComment()}"
+                       placeholder="댓글 비밀번호"
+                       autocomplete="off"
+                       maxlength="72"
+                       required>
+
+                <button type="submit"
+                        class="comment-delete-button">
+                    삭제
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- 댓글 작성 영역 -->
+        <div class="comment-write">
+
+            <h3>댓글 작성</h3>
+
+            <form class="post-form comment-form"
+                  th:action="@{/posts/{id}/comments(id=${post.id()})}"
+                  method="post">
+
+                <!-- 비회원 입력 영역 -->
+                <div class="guest-fields"
+                     th:if="${!loggedIn}">
+
+                    <div>
+
+                        <label for="comment-nickname">
+                            닉네임
+                        </label>
+
+                        <input type="text"
+                               id="comment-nickname"
+                               name="nickname"
+                               th:value="${commentNickname}"
+                               minlength="2"
+                               maxlength="30"
+                               placeholder="닉네임"
+                               required>
+
+                    </div>
+
+                    <div>
+
+                        <label for="comment-password">
+                            비밀번호
+                        </label>
+
+                        <input type="password"
+                               id="comment-password"
+                               name="password"
+                               minlength="8"
+                               maxlength="72"
+                               placeholder="비밀번호 8자 이상"
+                               autocomplete="new-password"
+                               required>
+
+                    </div>
+
+                </div>
+
+                <!-- 회원 안내 -->
+                <p class="member-notice"
+                   th:if="${loggedIn}">
+
+                    로그인 계정의 닉네임으로
+                    댓글이 등록됩니다.
+
+                </p>
+
+                <!-- 댓글 입력 -->
+                <label for="comment-content">내용</label>
+
+                <textarea id="comment-content"
+                          name="content"
+                          th:text="${commentContent}"
+                          placeholder="댓글 내용을 입력하세요."
+                          maxlength="1000"
+                          required></textarea>
+
+                <div class="form-actions">
+
+                    <button type="submit"
+                            class="write-button">
+                        댓글 등록
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="footer">
+
+    <p>Game Community</p>
+    <p>Spring Boot &amp; JPA Term Project</p>
+
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>게시글 수정 - Game Community</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/home.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/space.css}">
+
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="header-inner">
+
+        <a class="logo" th:href="@{/}">
+            Game Community
+        </a>
+
+        <span class="subtitle">
+            게임을 이야기하는 공간
+        </span>
+
+    </div>
+
+</header>
+
+<nav class="navbar">
+
+    <div class="nav-inner">
+
+        <a th:href="@{/}">홈</a>
+
+        <a th:href="@{/spaces/{slug}(slug=${post.spaceSlug()})}"
+           th:text="${post.spaceName()}">
+        </a>
+
+    </div>
+
+</nav>
+
+<main class="board-layout">
+
+    <section class="panel">
+
+        <div class="board-header">
+
+            <h1>게시글 수정</h1>
+
+        </div>
+
+        <p class="form-error"
+           th:if="${error != null}"
+           th:text="${error}">
+        </p>
+
+        <form class="post-form"
+              th:action="@{/posts/{id}/edit(id=${post.id()})}"
+              method="post">
+
+            <label>작성자</label>
+
+            <p th:text="${post.nickname()}"></p>
+
+            <!-- 비회원 비밀번호 입력 -->
+            <div th:if="${manage.guestPost()}">
+
+                <label for="password">
+                    게시글 비밀번호
+                </label>
+
+                <input type="password"
+                       id="password"
+                       name="password"
+                       placeholder="게시글 비밀번호를 입력하세요."
+                       autocomplete="off"
+                       required>
+
+            </div>
+
+            <!-- 제목 -->
+            <label for="title">제목</label>
+
+            <input type="text"
+                   id="title"
+                   name="title"
+                   th:value="${title}"
+                   maxlength="100"
+                   required>
+
+            <!-- 내용 -->
+            <label for="content">내용</label>
+
+            <textarea id="content"
+                      name="content"
+                      th:text="${content}"
+                      maxlength="10000"
+                      required></textarea>
+
+            <div class="form-actions">
+
+                <a class="cancel-button"
+                   th:href="@{/posts/{id}(id=${post.id()})}">
+                    취소
+                </a>
+
+                <button type="submit"
+                        class="write-button">
+                    수정 완료
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<footer class="footer">
+
+    <p>Game Community</p>
+    <p>Spring Boot &amp; JPA Term Project</p>
+
+</footer>
+
+</body>
+</html>

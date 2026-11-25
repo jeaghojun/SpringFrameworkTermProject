@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="|${space.name} - Game Community|">
+        Game Community
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/home.css}">
+
+    <link rel="stylesheet"
+          th:href="@{/css/space.css}">
+
+</head>
+
+<body>
+
+<!-- 상단 헤더 -->
+<header class="header">
+
+    <div class="header-inner">
+
+        <a class="logo" th:href="@{/}">
+            Game Community
+        </a>
+
+        <span class="subtitle">
+            게임을 이야기하는 공간
+        </span>
+
+    </div>
+
+</header>
+
+<!-- 게임별 이동 메뉴 -->
+<nav class="navbar">
+
+    <div class="nav-inner">
+
+        <a th:href="@{/}">홈</a>
+
+        <a th:each="item : ${spaces}"
+           th:href="@{/spaces/{slug}(slug=${item.slug})}"
+           th:text="${item.name}"
+           th:classappend="${item.slug == space.slug ? 'active' : ''}">
+        </a>
+
+    </div>
+
+</nav>
+
+<!-- 게시판 -->
+<main class="board-layout">
+
+    <section class="panel">
+
+        <!-- 공간 정보 -->
+        <div class="board-header">
+
+            <h1 th:text="${space.name}">
+                게임 공간
+            </h1>
+
+            <p th:text="${space.description}">
+                공간 설명
+            </p>
+
+        </div>
+
+        <!-- 성공 메시지 -->
+        <p class="member-notice"
+           th:if="${success != null}"
+           th:text="${success}">
+        </p>
+
+        <!-- 오류 메시지 -->
+        <p class="form-error"
+           th:if="${error != null}"
+           th:text="${error}">
+        </p>
+
+        <!-- 게시글 수 및 글쓰기 -->
+        <div class="board-toolbar">
+
+            <!-- 일반 게시글 개수 -->
+            <span th:if="${#strings.isEmpty(keyword)}"
+                  th:text="|전체 게시글 ${postCount}개|">
+                전체 게시글 0개
+            </span>
+
+            <!-- 검색 결과 개수 -->
+            <span th:if="${!#strings.isEmpty(keyword)}"
+                  th:text="|검색 결과 ${postCount}개|">
+                검색 결과 0개
+            </span>
+
+            <!-- 글쓰기 버튼 -->
+            <a class="write-button"
+               th:href="@{/spaces/{slug}/write(slug=${space.slug})}">
+                글쓰기
+            </a>
+
+        </div>
+
+        <!-- 게시글 테이블 -->
+        <div class="table-wrap">
+
+            <table class="post-table board-table">
+
+                <thead>
+
+                <tr>
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>작성일</th>
+                    <th>조회</th>
+                    <th>추천</th>
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <!-- 게시글 목록 -->
+                <tr th:each="post : ${posts}">
+
+                    <!-- 게시글 번호 -->
+                    <td th:text="${post.id}"></td>
+
+                    <!-- 게시글 제목 및 상세 조회 -->
+                    <td class="post-title">
+
+                        <a th:href="@{/posts/{id}(id=${post.id})}"
+                           th:text="${post.title}">
+                        </a>
+
+                    </td>
+
+                    <!-- 작성자 -->
+                    <td th:text="${post.nickname}"></td>
+
+                    <!-- 작성일 -->
+                    <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">
+                    </td>
+
+                    <!-- 조회수 -->
+                    <td th:text="${post.viewCount}"></td>
+
+                    <!-- 추천수 -->
+                    <td th:text="${post.likeCount}"></td>
+
+                </tr>
+
+                <!-- 게시글이 없거나 검색 결과가 없는 경우 -->
+                <tr th:if="${#lists.isEmpty(posts)}">
+
+                    <td colspan="6"
+                        class="empty"
+                        th:text="${#strings.isEmpty(keyword) ?
+                        '등록된 게시글이 없습니다.' :
+                        '검색 결과가 없습니다.'}">
+
+                        등록된 게시글이 없습니다.
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- 페이지 이동 -->
+        <div class="pagination">
+
+            <!-- 이전 페이지 -->
+            <a th:if="${currentPage gt 0}"
+               th:href="@{/spaces/{slug}(slug=${space.slug},page=${currentPage - 1},keyword=${keyword})}">
+
+                이전
+
+            </a>
+
+            <!-- 페이지 번호 -->
+            <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+
+                <!-- 현재 페이지 -->
+                <span class="current-page"
+                      th:if="${i == currentPage}"
+                      th:text="${i + 1}">
+                </span>
+
+                <!-- 다른 페이지 -->
+                <a th:if="${i != currentPage}"
+                   th:href="@{/spaces/{slug}(slug=${space.slug},page=${i},keyword=${keyword})}"
+                   th:text="${i + 1}">
+                </a>
+
+            </th:block>
+
+            <!-- 다음 페이지 -->
+            <a th:if="${currentPage + 1 lt totalPages}"
+               th:href="@{/spaces/{slug}(slug=${space.slug},page=${currentPage + 1},keyword=${keyword})}">
+
+                다음
+
+            </a>
+
+        </div>
+
+        <!-- 검색 영역 -->
+        <form class="search-area"
+              th:action="@{/spaces/{slug}(slug=${space.slug})}"
+              method="get">
+
+            <!-- 검색 조건 -->
+            <select aria-label="검색 조건">
+
+                <option>제목</option>
+
+            </select>
+
+            <!-- 검색어 입력 -->
+            <input type="text"
+                   name="keyword"
+                   th:value="${keyword}"
+                   placeholder="검색어를 입력하세요."
+                   maxlength="100">
+
+            <!-- 검색 버튼 -->
+            <button type="submit">
+
+                검색
+
+            </button>
+
+            <!-- 검색 초기화 -->
+            <a class="cancel-button"
+               th:if="${!#strings.isEmpty(keyword)}"
+               th:href="@{/spaces/{slug}(slug=${space.slug})}">
+
+                초기화
+
+            </a>
+
+        </form>
+
+    </section>
+
+</main>
+
+<!-- 하단 -->
+<footer class="footer">
+
+    <p>Game Community</p>
+
+    <p>Spring Boot &amp; JPA Term Project</p>
+
+</footer>
+
+</body>
+</html>

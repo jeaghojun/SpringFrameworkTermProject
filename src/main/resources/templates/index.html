@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Game Community</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/home.css}">
+</head>
+
+<body>
+
+<!-- 상단 헤더 -->
+<header class="header">
+    <div class="header-inner">
+
+        <a class="logo" th:href="@{/}">
+            Game Community
+        </a>
+
+        <span class="subtitle">
+            게임을 이야기하는 공간
+        </span>
+
+    </div>
+</header>
+
+<!-- 메뉴 -->
+<nav class="navbar">
+    <div class="nav-inner">
+
+        <a th:href="@{/}">홈</a>
+        <a href="#spaces">게임 공간</a>
+        <a href="#latest">최신 게시글</a>
+        <a href="#popular">인기 게시글</a>
+
+    </div>
+</nav>
+
+<!-- 메인 콘텐츠 -->
+<div class="layout">
+
+    <main class="main-content">
+
+        <!-- 게임별 공간 -->
+        <section class="panel" id="spaces">
+
+            <h2>게임별 공간</h2>
+
+            <div class="space-grid">
+
+                <a class="space-card"
+                   th:each="space : ${spaces}"
+                   th:href="@{/spaces/{slug}(slug=${space.slug})}">
+
+                    <h3 th:text="${space.name}">
+                        공간 이름
+                    </h3>
+
+                    <p th:text="${space.description}">
+                        공간 설명
+                    </p>
+
+                </a>
+
+            </div>
+
+        </section>
+
+        <!-- 최신 게시글 -->
+        <section class="panel" id="latest">
+
+            <h2>최신 게시글</h2>
+
+            <div class="table-wrap">
+                <table class="post-table">
+
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>조회</th>
+                        <th>추천</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="post : ${latestPosts}">
+
+                        <td th:text="${post.id}"></td>
+
+                        <td class="post-title">
+
+                            <a th:href="@{/posts/{id}(id=${post.id})}"
+                               th:text="${post.title}">
+                            </a>
+
+                        </td>
+
+                        <td th:text="${post.nickname}"></td>
+
+                        <td th:text="${post.viewCount}"></td>
+
+                        <td th:text="${post.likeCount}"></td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(latestPosts)}">
+                        <td colspan="5" class="empty">
+                            등록된 게시글이 없습니다.
+                        </td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </section>
+
+        <!-- 인기 게시글 -->
+        <section class="panel" id="popular">
+
+            <h2>인기 게시글</h2>
+
+            <div class="table-wrap">
+                <table class="post-table">
+
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>조회</th>
+                        <th>추천</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="post : ${popularPosts}">
+
+                        <td th:text="${post.id}"></td>
+
+                        <td class="post-title">
+
+                            <a th:href="@{/posts/{id}(id=${post.id})}"
+                               th:text="${post.title}">
+                            </a>
+
+                        </td>
+
+                        <td th:text="${post.nickname}"></td>
+
+                        <td th:text="${post.viewCount}"></td>
+
+                        <td th:text="${post.likeCount}"></td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(popularPosts)}">
+                        <td colspan="5" class="empty">
+                            등록된 게시글이 없습니다.
+                        </td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- 오른쪽 사이드바 -->
+    <aside class="sidebar">
+
+        <!-- 비회원 로그인 영역 -->
+        <section class="panel"
+                 th:if="${username == null}">
+
+            <h2>회원 로그인</h2>
+
+            <form th:action="@{/login}" method="post">
+
+                <input type="text"
+                       name="username"
+                       placeholder="아이디"
+                       autocomplete="username"
+                       required>
+
+                <input type="password"
+                       name="password"
+                       placeholder="비밀번호"
+                       autocomplete="current-password"
+                       required>
+
+                <button type="submit" class="red-button">
+                    로그인
+                </button>
+
+            </form>
+
+            <div class="auth-link">
+
+                <a th:href="@{/register}">
+                    회원가입
+                </a>
+
+            </div>
+
+        </section>
+
+        <!-- 로그인 회원 영역 -->
+        <section class="panel"
+                 th:if="${username != null}">
+
+            <h2>회원 정보</h2>
+
+            <div class="welcome">
+
+                <strong th:text="${nickname}"></strong>님,
+                환영합니다.
+
+            </div>
+
+            <p class="user-id"
+               th:text="${username}">
+            </p>
+
+            <a class="account-link"
+               th:href="@{/account}">
+                내 계정
+            </a>
+
+            <form th:action="@{/logout}" method="post">
+
+                <button type="submit" class="red-button">
+                    로그아웃
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- 커뮤니티 현황 -->
+        <section class="panel">
+
+            <h2>커뮤니티 현황</h2>
+
+            <div class="stat-row">
+                <span>전체 공간</span>
+                <strong th:text="|${spaceCount}개|"></strong>
+            </div>
+
+            <div class="stat-row">
+                <span>전체 게시글</span>
+                <strong th:text="|${postCount}개|"></strong>
+            </div>
+
+            <div class="stat-row">
+                <span>전체 회원</span>
+                <strong th:text="|${memberCount}명|"></strong>
+            </div>
+
+        </section>
+
+    </aside>
+
+</div>
+
+<!-- 하단 -->
+<footer class="footer">
+
+    <p>Game Community</p>
+    <p>Spring Boot &amp; JPA Term Project</p>
+
+</footer>
+
+</body>
+</html>
